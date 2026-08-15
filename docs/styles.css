@@ -24,6 +24,12 @@
   --accent-ink:  #ffffff;    /* text on accent */
   --danger:      #d03b3b;
 
+  /* Segmented control. Its own pair, because "recessed" and "raised"
+     don't map onto surface/sunk the same way in both themes: light
+     recesses by going darker, dark raises by going lighter. */
+  --seg-track:  #f0efec;
+  --seg-active: #fcfcfb;
+
   --radius:     14px;
   --radius-sm:  10px;
   --tap:        48px;        /* minimum touch target */
@@ -46,6 +52,8 @@
     --accent:     #3987e5;
     --accent-ink: #ffffff;
     --danger:     #e66767;
+    --seg-track:  #131312;
+    --seg-active: #2c2c2a;
   }
 }
 
@@ -63,6 +71,8 @@
   --accent:     #3987e5;
   --accent-ink: #ffffff;
   --danger:     #e66767;
+  --seg-track:  #131312;
+  --seg-active: #2c2c2a;
 }
 
 * { box-sizing: border-box; }
@@ -314,6 +324,41 @@ body {
 
 .hero-delta { margin: 4px 0 0; font-size: 13px; color: var(--text-secondary); }
 
+/* Segmented control: the two ways to read a month. Its labels double as
+   the section headings, so the panels below carry no separate title. */
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin: 18px 0 2px;
+  background: var(--seg-track);
+  border-radius: var(--radius);
+}
+
+.segment {
+  appearance: none;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 10px 8px;
+  min-height: 44px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.segment.is-active {
+  background: var(--seg-active);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+}
+
+.panel { padding-top: 12px; }
+.panel[hidden] { display: none; }
+
 /* Bar list. One hue — length carries magnitude, so no legend is needed
    and every bar is direct-labelled with its name and value. */
 .breakdown { display: flex; flex-direction: column; gap: 14px; }
@@ -364,6 +409,7 @@ body {
 .entry-list { display: flex; flex-direction: column; }
 
 .day-group { margin-top: 14px; }
+.day-group:first-child { margin-top: 0; }
 
 .day-head {
   display: flex;

@@ -68,11 +68,24 @@
       <p id="month-delta" class="hero-delta"></p>
     </div>
 
-    <h3 class="section-title">By category</h3>
-    <div id="breakdown" class="breakdown"></div>
+    <div class="segmented" role="tablist" aria-label="Month detail">
+      <button class="segment is-active" type="button" role="tab" id="seg-categories"
+              data-panel="categories" aria-selected="true" aria-controls="panel-categories">
+        Categories
+      </button>
+      <button class="segment" type="button" role="tab" id="seg-entries"
+              data-panel="entries" aria-selected="false" aria-controls="panel-entries" tabindex="-1">
+        Entries
+      </button>
+    </div>
 
-    <h3 class="section-title">Entries</h3>
-    <div id="entry-list" class="entry-list"></div>
+    <div id="panel-categories" class="panel" role="tabpanel" aria-labelledby="seg-categories">
+      <div id="breakdown" class="breakdown"></div>
+    </div>
+
+    <div id="panel-entries" class="panel" role="tabpanel" aria-labelledby="seg-entries" hidden>
+      <div id="entry-list" class="entry-list"></div>
+    </div>
   </section>
 
   <!-- ─────────────────────── Settings view ────────────────────── -->

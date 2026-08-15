@@ -8,6 +8,18 @@ It's a Progressive Web App, so it installs to your phone's home screen and runs
 offline, but it's just HTML, CSS and JavaScript — no build step, no dependencies,
 no framework.
 
+## The three screens
+
+**Log** — the keypad and category grid. Every save gets an undo toast, and the
+running total for today sits at the top.
+
+**Month** — the total and change vs last month, then a `Categories | Entries`
+toggle for the two ways to read a month: the ranked bar chart, or the raw entries
+grouped by day. Tap any entry to edit its amount, category, date or note. The
+toggle remembers which side you were on.
+
+**Settings** — currency symbol, theme, category editing, and export/import.
+
 ## Putting it on your phone
 
 1. In the repo, go to **Settings → Pages**.

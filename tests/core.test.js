@@ -255,15 +255,25 @@ test("import keeps good rows and counts the bad ones", () => {
   assert.equal(result.data.entries[0].id, "ok");
 });
 
-test("import coerces a missing currency and theme to safe defaults", () => {
+test("import coerces a missing currency, theme and month tab to safe defaults", () => {
   const result = C.validateImport({
     categories: [{ id: "c1", name: "X" }],
     entries: [],
     theme: "neon",
+    monthTab: "nonsense",
   });
   assert.equal(result.data.currency, "$");
   assert.equal(result.data.theme, "system");
+  assert.equal(result.data.monthTab, "categories");
   assert.equal(result.data.categories[0].icon, "•");
+});
+
+test("the month tab choice round-trips through export and import", () => {
+  const s = { ...C.defaultState(), monthTab: "entries" };
+  assert.equal(C.defaultState().monthTab, "categories");
+  const result = C.validateImport(JSON.parse(JSON.stringify(C.exportPayload(s))));
+  assert.equal(result.data.monthTab, "entries");
+  assert.deepEqual(C.MONTH_TABS, ["categories", "entries"]);
 });
 
 test("migrate survives corrupt storage", () => {

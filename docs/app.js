@@ -263,7 +263,44 @@
 
     renderBreakdown(entries);
     renderEntries(entries);
+    applyMonthTab();
   }
+
+  // Which half of the month is on screen — the category chart or the raw
+  // entries. Persisted, so the app reopens on whichever you actually use.
+  function applyMonthTab() {
+    const active = C.MONTH_TABS.includes(state.monthTab) ? state.monthTab : "categories";
+    for (const seg of document.querySelectorAll(".segment")) {
+      const on = seg.dataset.panel === active;
+      seg.classList.toggle("is-active", on);
+      seg.setAttribute("aria-selected", on ? "true" : "false");
+      seg.tabIndex = on ? 0 : -1;
+    }
+    $("#panel-categories").hidden = active !== "categories";
+    $("#panel-entries").hidden = active !== "entries";
+  }
+
+  function setMonthTab(name) {
+    if (!C.MONTH_TABS.includes(name) || state.monthTab === name) return;
+    state = { ...state, monthTab: name };
+    save();
+    applyMonthTab();
+  }
+
+  $(".segmented").addEventListener("click", (e) => {
+    const seg = e.target.closest(".segment");
+    if (seg) setMonthTab(seg.dataset.panel);
+  });
+
+  // Arrow keys move between tabs, as a tablist is expected to.
+  $(".segmented").addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const index = C.MONTH_TABS.indexOf(state.monthTab);
+    const next = C.MONTH_TABS[(index + (e.key === "ArrowRight" ? 1 : -1) + C.MONTH_TABS.length) % C.MONTH_TABS.length];
+    setMonthTab(next);
+    document.querySelector('.segment[data-panel="' + next + '"]').focus();
+  });
 
   function renderBreakdown(entries) {
     const wrap = $("#breakdown");
@@ -326,7 +363,13 @@
     wrap.textContent = "";
 
     const groups = C.groupByDay(entries);
-    if (!groups.length) return;
+    if (!groups.length) {
+      const p = document.createElement("p");
+      p.className = "empty";
+      p.textContent = "Nothing logged this month.";
+      wrap.appendChild(p);
+      return;
+    }
 
     const lookup = new Map(state.categories.map((c) => [c.id, c]));
 

@@ -32,11 +32,14 @@
     { id: "c_other", icon: "•", name: "Other" },
   ];
 
+  const MONTH_TABS = ["categories", "entries"];
+
   function defaultState() {
     return {
       v: SCHEMA_VERSION,
       currency: "$",
       theme: "system",
+      monthTab: "categories",
       categories: DEFAULT_CATEGORIES.map((c) => ({ ...c })),
       entries: [],
     };
@@ -328,6 +331,7 @@
         v: SCHEMA_VERSION,
         currency: typeof raw.currency === "string" && raw.currency ? raw.currency.slice(0, 3) : "$",
         theme: ["system", "light", "dark"].includes(raw.theme) ? raw.theme : "system",
+        monthTab: MONTH_TABS.includes(raw.monthTab) ? raw.monthTab : "categories",
         categories,
         entries,
       },
@@ -352,6 +356,7 @@
       exportedAt: new Date().toISOString(),
       currency: state.currency,
       theme: state.theme,
+      monthTab: state.monthTab,
       categories: state.categories,
       entries: state.entries.slice().sort((a, b) => a.ts - b.ts),
     };
@@ -366,6 +371,7 @@
     SCHEMA_VERSION,
     STORAGE_KEY,
     MAX_DIGITS,
+    MONTH_TABS,
     DEFAULT_CATEGORIES,
     defaultState,
     newId,
