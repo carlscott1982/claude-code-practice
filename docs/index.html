@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spend Log</title>
+<meta name="description" content="A fast, offline, private spending log.">
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Spend">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ───────────────────────── Log view ───────────────────────── -->
+  <section id="view-log" class="view" aria-labelledby="log-heading">
+    <h1 id="log-heading" class="sr-only">Log a spend</h1>
+
+    <header class="log-head">
+      <p class="today-line">
+        <span class="today-label">Today</span>
+        <span id="today-total" class="today-total">—</span>
+      </p>
+      <output id="amount" class="amount" aria-live="polite" aria-atomic="true">0.00</output>
+      <p id="amount-hint" class="amount-hint">Tap a category to save</p>
+    </header>
+
+    <div class="keypad" role="group" aria-label="Amount keypad">
+      <button class="key" data-key="1">1</button>
+      <button class="key" data-key="2">2</button>
+      <button class="key" data-key="3">3</button>
+      <button class="key" data-key="4">4</button>
+      <button class="key" data-key="5">5</button>
+      <button class="key" data-key="6">6</button>
+      <button class="key" data-key="7">7</button>
+      <button class="key" data-key="8">8</button>
+      <button class="key" data-key="9">9</button>
+      <button class="key key-aux" data-key="clear" aria-label="Clear amount">C</button>
+      <button class="key" data-key="0">0</button>
+      <button class="key key-aux" data-key="back" aria-label="Delete last digit">⌫</button>
+    </div>
+
+    <div id="category-grid" class="category-grid" role="group" aria-label="Categories"></div>
+  </section>
+
+  <!-- ──────────────────────── Month view ──────────────────────── -->
+  <section id="view-month" class="view" hidden aria-labelledby="month-heading">
+    <h1 id="month-heading" class="sr-only">Monthly summary</h1>
+
+    <div class="month-nav">
+      <button id="month-prev" class="icon-btn" aria-label="Previous month">‹</button>
+      <h2 id="month-label" class="month-label">—</h2>
+      <button id="month-next" class="icon-btn" aria-label="Next month">›</button>
+    </div>
+
+    <div class="hero">
+      <p class="hero-label">Total spent</p>
+      <p id="month-total" class="hero-figure">—</p>
+      <p id="month-delta" class="hero-delta"></p>
+    </div>
+
+    <h3 class="section-title">By category</h3>
+    <div id="breakdown" class="breakdown"></div>
+
+    <h3 class="section-title">Entries</h3>
+    <div id="entry-list" class="entry-list"></div>
+  </section>
+
+  <!-- ─────────────────────── Settings view ────────────────────── -->
+  <section id="view-settings" class="view" hidden aria-labelledby="settings-heading">
+    <h1 id="settings-heading" class="view-title">Settings</h1>
+
+    <h3 class="section-title">Display</h3>
+    <div class="card">
+      <label class="field">
+        <span class="field-label">Currency symbol</span>
+        <input id="currency-input" class="input input-short" type="text" maxlength="3" autocomplete="off">
+      </label>
+      <label class="field">
+        <span class="field-label">Theme</span>
+        <select id="theme-select" class="input input-short">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+    </div>
+
+    <h3 class="section-title">Categories</h3>
+    <div id="category-editor" class="card category-editor"></div>
+    <form id="add-category" class="add-category">
+      <input id="new-cat-icon" class="input input-icon" type="text" maxlength="2" placeholder="🍎" aria-label="New category icon" autocomplete="off">
+      <input id="new-cat-name" class="input" type="text" placeholder="New category" aria-label="New category name" autocomplete="off">
+      <button class="btn btn-accent" type="submit">Add</button>
+    </form>
+
+    <h3 class="section-title">Your data</h3>
+    <div class="card">
+      <p id="storage-line" class="note-line">—</p>
+      <p class="note-line">Everything is stored on this device only. Nothing is uploaded, and there is no account. Export regularly if the data matters to you — clearing your browser storage erases it.</p>
+      <div class="btn-row">
+        <button id="export-btn" class="btn">Export JSON</button>
+        <button id="import-btn" class="btn">Import JSON</button>
+        <input id="import-file" type="file" accept="application/json,.json" hidden>
+      </div>
+      <div class="btn-row">
+        <button id="reset-btn" class="btn btn-danger">Erase all data</button>
+      </div>
+    </div>
+
+    <p class="version-line">Spend Log · offline-first · <span id="sw-state">checking…</span></p>
+  </section>
+
+  <!-- ───────────────────────── Tab bar ────────────────────────── -->
+  <nav class="tabbar" aria-label="Main">
+    <button class="tab is-active" data-view="log" aria-current="page">
+      <span class="tab-icon" aria-hidden="true">＋</span><span class="tab-text">Log</span>
+    </button>
+    <button class="tab" data-view="month">
+      <span class="tab-icon" aria-hidden="true">▦</span><span class="tab-text">Month</span>
+    </button>
+    <button class="tab" data-view="settings">
+      <span class="tab-icon" aria-hidden="true">⚙</span><span class="tab-text">Settings</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- Entry edit sheet -->
+<dialog id="edit-sheet" class="sheet" aria-labelledby="edit-title">
+  <form method="dialog" id="edit-form">
+    <h2 id="edit-title" class="sheet-title">Edit entry</h2>
+    <label class="field">
+      <span class="field-label">Amount</span>
+      <input id="edit-amount" class="input" type="number" step="0.01" min="0" inputmode="decimal" required>
+    </label>
+    <label class="field">
+      <span class="field-label">Category</span>
+      <select id="edit-category" class="input"></select>
+    </label>
+    <label class="field">
+      <span class="field-label">Date</span>
+      <input id="edit-date" class="input" type="date" required>
+    </label>
+    <label class="field">
+      <span class="field-label">Note</span>
+      <input id="edit-note" class="input" type="text" placeholder="Optional" autocomplete="off">
+    </label>
+    <div class="btn-row sheet-actions">
+      <button value="cancel" class="btn" type="submit" formnovalidate>Cancel</button>
+      <button id="edit-save" value="save" class="btn btn-accent" type="submit">Save</button>
+    </div>
+    <div class="btn-row">
+      <button id="edit-delete" value="delete" class="btn btn-danger" type="submit" formnovalidate>Delete entry</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden>
+  <span id="toast-text"></span>
+  <button id="toast-undo" class="toast-undo" type="button">Undo</button>
+</div>
+
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
