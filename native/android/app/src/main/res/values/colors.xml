@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Referenced by AppTheme in styles.xml. These are the same accent and
+  surface values the web app uses, so the system chrome (status bar,
+  recents card) matches the app instead of fighting it.
+-->
+<resources>
+    <color name="colorPrimary">#2a78d6</color>
+    <color name="colorPrimaryDark">#184f95</color>
+    <color name="colorAccent">#2a78d6</color>
+</resources>

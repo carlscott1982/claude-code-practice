@@ -3,7 +3,9 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 
-# Node — Playwright is only used for local browser smoke tests
+# Node — these patterns are anchored to the repo root on purpose.
+# Unanchored, they would also swallow native/package.json, which the
+# Android build genuinely needs.
 node_modules/
-package-lock.json
-package.json
+/package.json
+/package-lock.json
