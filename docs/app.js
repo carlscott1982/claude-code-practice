@@ -721,8 +721,18 @@
 
   /* ------------------------- service worker -------------------------- */
 
+  // True when running inside the Android APK rather than a browser tab.
+  const isNative = typeof window.Capacitor !== "undefined";
+
   function registerSW() {
     const label = $("#sw-state");
+
+    // In the APK every asset already ships inside the package, so a
+    // service worker would only be a cache in front of a cache.
+    if (isNative) {
+      label.textContent = "installed app";
+      return;
+    }
     if (!("serviceWorker" in navigator) || location.protocol === "file:") {
       label.textContent = "offline mode unavailable here";
       return;
@@ -735,6 +745,25 @@
       .catch(() => {
         label.textContent = "offline mode unavailable";
       });
+  }
+
+  // The honest description of where the data lives differs between the
+  // two builds, and the difference is the whole reason the APK exists.
+  function describeStorage() {
+    $("#storage-note").textContent = isNative
+      ? "Everything is stored inside this app on this device. Nothing is uploaded and there is no account. " +
+        "Clearing your browser data does not touch it — only uninstalling the app, or clearing its storage in " +
+        "Android Settings, will. Export anyway if the history matters to you."
+      : "Everything is stored on this device only. Nothing is uploaded, and there is no account. " +
+        "Export regularly if the data matters to you — clearing your browser storage erases it.";
+  }
+
+  // Ask the browser not to evict the data if the device runs low on space.
+  // This does not survive a deliberate "clear browsing data"; only the
+  // installed app build is safe from that.
+  function requestPersistence() {
+    if (isNative || !navigator.storage || !navigator.storage.persist) return;
+    navigator.storage.persist().catch(() => {});
   }
 
   /* ------------------------------ boot ------------------------------- */
@@ -750,6 +779,8 @@
   applyTheme();
   renderAll();
   showView("log");
+  describeStorage();
+  requestPersistence();
   registerSW();
 
   // Coming back to the app after midnight should not show a stale "Today".
