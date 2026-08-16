@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Node — Playwright is only used for local browser smoke tests
+node_modules/
+package-lock.json
+package.json
